@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <title>Streaming OpenAI API Completions in JavaScript</title>
+    <style>
+      body {
+        background-color: white;
+        color: black;
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0;
+        font-family: Arial, sans-serif;
+      }
+      .container {
+        width: 100%;
+        max-width: 600px;
+        padding: 20px;
+        border-radius: 8px;
+        background-color: #f3f4f6;
+      }
+      #resultContainer {
+  margin-top: 1rem;
+  height: 300px; /* Adjust height as needed */
+  overflow-y: auto;
+  background-color: #ffffff;
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #d1d5db;
+  display: flex;
+  flex-direction: column;
+}
+
+#chatList {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+#chatList li {
+  margin-bottom: 10px;
+  padding: 10px;
+  border-radius: 8px;
+  max-width: 70%;
+}
+
+.user-message {
+  align-self: flex-end;
+  background-color: #e5e7eb;
+  color: #1f2937;
+}
+
+.api-response {
+  align-self: flex-start;
+  background-color: #f3f4f6;
+  color: #4b5563;
+}
+
+      .send{
+        display:flex;
+        justify-content: space-between;
+      }
+      #promptInput {
+        
+        width: 87%;
+        padding: 10px;
+        border-radius: 8px;
+        background-color: #e5e7eb;
+        border: 1px solid #d1d5db;
+        margin-top: 1rem;
+        
+        font-size: 1rem;
+        outline: none;
+      }
+      .send{
+        display:flex;
+      }
+      .button-group {
+        display: flex;
+        justify-content: center;
+        margin-top: 1rem;
+      }
+      .btn {
+        width: 45%;
+        padding: 10px;
+        border-radius: 8px;
+        font-size: 1rem;
+        cursor: pointer;
+        outline: none;
+      }
+      .btn-generate {
+        background-color: black;
+        color: white;
+        width:50px;
+      }
+      .btn-generate:hover {
+        background-color: #333;
+      }
+      
+      .btn:disabled {
+        opacity: 0.75;
+        cursor: not-allowed;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div id="resultContainer">
+        <ul id="chatList"></ul>
+      </div>
+      <div class="send">
+        <input type="text" id="promptInput" placeholder="Enter prompt..." />
+        <div class="button-group">
+          <button id="generateBtn" class="btn btn-generate">
+            <i class="fas fa-arrow-up"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+    
+    <!-- <script src="ai.js"></script> -->
+     <script>
+    const API_kEY = "sk-aPH7DC0mCzcKUZMMjTGG97xnEdj4MEYfLjBjY5RnFtT3BlbkFJOHbGOqLbFtlkN4gd0L2c012yGCupXyG51z8nK8UdMA";
+const API_URL = "https://api.openai.com/v1/chat/completions";
+
+const promptInput = document.getElementById("promptInput");
+const generateBtn = document.getElementById("generateBtn");
+const chatList = document.getElementById("chatList");
+
+const addMessage = (message, isUserMessage) => {
+  const li = document.createElement("li");
+  li.textContent = message;
+  li.className = isUserMessage ? "user-message" : "api-response";
+  chatList.appendChild(li);
+  chatList.scrollTop = chatList.scrollHeight; // Scroll to the bottom
+};
+
+const generate = async () => {
+  if (!promptInput.value) {
+    alert("Please enter a prompt");
+    return;
+  }
+  generateBtn.disabled = true;
+  addMessage(promptInput.value, true); // Add user message
+
+  try {
+    const response = await fetch(API_URL, {
+      method: "post",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${API_kEY}`
+      },
+      body: JSON.stringify({
+        model: "gpt-3.5-turbo",
+        messages: [{ role: "user", content: promptInput.value }],
+        max_tokens: 100
+      }),
+    });
+    const data = await response.json();
+    const message = data.choices[0].message.content;
+    addMessage(message, false); // Add API response
+  } catch (error) {
+    console.log(error);
+    addMessage("An error occurred. Please try again later.", false);
+  } finally {
+    generateBtn.disabled = false;
+    promptInput.value = ""; // Clear input field
+  }
+};
+
+generateBtn.addEventListener("click", generate);
+promptInput.addEventListener("keyup", (event) => {
+  if (event.key === "Enter") {
+    generate();
+  }
+});
+</script>
+  </body>
+</html>
