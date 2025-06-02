@@ -10,7 +10,7 @@ document.getElementById('close-popup').addEventListener('click', function() {
 
 
 
-const API_kEY="sk-aPH7DC0mCzcKUZMMjTGG97xnEdj4MEYfLjBjY5RnFtT3BlbkFJOHbGOqLbFtlkN4gd0L2c012yGCupXyG51z8nK8UdMA"
+const API_kEY="key"
 const API_URL="https://api.openai.com/v1/chat/completions"
 
 const promptInput = document.getElementById("promptInput");
